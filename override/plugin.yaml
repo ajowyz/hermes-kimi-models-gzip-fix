@@ -1,0 +1,5 @@
+name: kimi-coding-provider
+kind: model-provider
+version: 1.0.1
+description: "Moonshot Kimi Coding (global + China) - user override: gzip-safe /models listing"
+author: Nous Research
