@@ -1,6 +1,6 @@
 # Hermes Agent: Kimi provider model list silently stale (gzip decode bug) + fix
 
-> 中文摘要见文末 / Chinese summary at the bottom.
+> 中文文档 / Chinese version: [README.zh-CN.md](./README.zh-CN.md)
 
 ## TL;DR
 
@@ -113,25 +113,3 @@ hermes config set model.aliases.k31      "kimi-coding-cn/kimi-k3.1-pro"
 hermes config set model.aliases.k31-fast "kimi-coding-cn/kimi-k3.1-pro-highspeed"
 # then: /model k31  or  /model k31-fast
 ```
-
----
-
-## 中文摘要
-
-**现象**：Hermes 的 Kimi 提供商模型选择器列表长期不更新，新模型（如
-`kimi-k3.1-pro`）不出现；删除 `provider_models_cache.json` 缓存也无效。
-
-**根因**：内置 `kimi-coding` 插件在请求头中声明 `Accept-Encoding: gzip`，
-但 `providers/base.py` 的 `fetch_models` 用 urllib 读取响应后没有解压
-gzip，解码抛出 `UnicodeDecodeError`（字节 `0x8b`，即 gzip 魔数 `1f 8b`），
-异常被静默吞掉，选择器回退到过时的内置名单。
-
-**修复**：本仓库 [`override/`](./override) 目录是一个用户覆盖插件（Hermes
-约定同名用户插件覆盖内置插件），把列表拉取改为 gzip 感知。放到
-`$HERMES_HOME/plugins/model-providers/kimi-coding/`，删除
-`provider_models_cache.json` 并完全重启 Hermes 即可。已在 Windows 11 +
-`kimi-coding-cn` 验证，选择器能列出全部 3 个模型。
-
-**建议上游修复**：在 `ProviderProfile.fetch_models` 中按
-`Content-Encoding` 解压 gzip（见上），可一次性修复所有带压缩请求头的
-提供商。
